@@ -13,9 +13,11 @@ BasicGame.MainMenu.prototype = {
     //  We've already preloaded our assets, so let's kick right into the Main Menu itself.
     //  Here all we're doing is playing some music and adding a picture and button
     //  Naturally I expect you to do something significantly better :)
-
-    this.music = this.add.audio('titleMusic',1,true);
-    this.music.play('',0,1,true);
+    
+  if (BasicGame.music == null) {
+    BasicGame.music = this.add.audio('titleMusic',1,true);
+    BasicGame.music.play('',0,1,true);
+  } 
 
     this.add.sprite(0, 0, 'background');
 
