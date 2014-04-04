@@ -27,10 +27,12 @@ BasicGame.Game = function (game) {
     this.blocks        = null;
     this.count         = 0;
     this.blockspeed    = 400;
-    this.blockspeedmod = 50;
+    this.blockspeedmod = 20;
     this.countmod      = 1;
     this.countexp      = 0.8;
-
+    this.randomblocks  = {max: 8, min: 1};
+    this.blockoffset   = 600;
+    this.grouponstage  = false;
 };
 
 BasicGame.Game.prototype = {
@@ -73,7 +75,11 @@ BasicGame.Game.prototype = {
     BasicGame.currentscore = 0;
     this.count = 0;
     
-    this.addBlock();
+    this.blocks = this.game.add.group();
+    this.blocks.enableBody = true;
+    this.blocks.createMultiple(10, 'block')
+    this.game.physics.arcade.enable(this.blocks);
+    // this.timer = this.game.time.events.loop(500, this.addBlocks, this); 
   },
 
   update: function () {
@@ -85,11 +91,16 @@ BasicGame.Game.prototype = {
       this.physics.arcade.collide(this.player, this.blocks, this.hitBlock, null, this);
     }
     
+    if (this.grouponstage == 0) {
+      this.addBlocks();
+    }
+    // this.timer = this.game.time.events.loop(500, this.addBlocks, this); 
+    
     BasicGame.currentscore += 1;
     scoreText.text = 'Score: ' + BasicGame.currentscore;
     
     // this.blocks.body.velocity.x = - 1500;
-    this.blocks.body.velocity.x = -(this.blockspeed + (this.blockspeedmod * Math.pow(this.count*this.countmod, this.countexp)))
+    // this.blocks.body.velocity.x = -(this.blockspeed + (this.blockspeedmod * Math.pow(this.count*this.countmod, this.countexp)))
 
     //  Reset the this.players velocity (movement)
     this.player.body.velocity.x = 0;
@@ -130,22 +141,50 @@ BasicGame.Game.prototype = {
       BasicGame.highscore = BasicGame.currentscore;
       BasicGame.currentscore = 0;
     }
-
       this.state.start('MainMenu');
   },
-
-  addBlock: function (){
-    // blocks
-    this.blocks = this.add.sprite(200, this.game.world.height - (Math.random() > 0.5 ? 150 : 114) , 'block')
-    this.game.physics.arcade.enable(this.blocks);
-    this.blocks.body.immovable = true;  
-    this.blocks.checkWorldBounds = true;
-    this.blocks.events.onOutOfBounds.add( this.killBlock, this );
+  // 
+  // addBlock: function (){
+  //   // blocks
+  //   // this.blocks = this.add.sprite(200, this.game.world.height - (Math.random() > 0.5 ? 150 : 114) , 'block')
+  //   // this.game.physics.arcade.enable(this.blocks);
+  //   // this.blocks.body.immovable = true;  
+  //   // this.blocks.checkWorldBounds = true;
+  //   // this.blocks.events.onOutOfBounds.add( this.killBlock, this );
+  // },
+  addBlock: function(x, y) {
+    // Get the first dead pipe of our group
+      var block = this.blocks.getFirstDead();
+      // Set the new position of the pipe
+      block.reset(x, y);
+      // Add velocity to the pipe to make it move left
+      block.body.velocity.x = - (this.blockspeed + (this.blockspeedmod * Math.pow(this.count*this.countmod, this.countexp)));
+      block.body.immovable   = true; 
+      block.checkWorldBounds = true;
+      block.outOfBoundsKill  = true;
+      block.events.onOutOfBounds.add( this.killBlock, this );
   },
 
   killBlock: function (block) {
-    block.reset(this.game.world.width - block.getBounds().width , this.game.world.height - (Math.random() > 0.5 ? 150 : 114));
+    block.kill()
+    // block.reset(this.game.world.width - block.getBounds().width , this.game.world.height - (Math.random() > 0.5 ? 150 : 114));
     this.count += 1;
+    this.grouponstage -= 1;
+  },
+  
+  addBlocks: function (){
+    var n = Math.floor(Math.random() * (this.randomblocks.max - this.randomblocks.min + 1)) + this.randomblocks.min;
+    this.grouponstage = n;
+    for (var i = 0; i < n; i++) {
+      // this.addBlock(this.game.world.width + this.blockoffset * i, 150 ); 
+      this.addBlock(this.game.world.width + this.blockoffset * i, this.game.world.height - (Math.random() > 0.5 ? 150 : 114) ); 
+      // this.blocks = this.add.sprite(200, this.game.world.height - (Math.random() > 0.5 ? 150 : 114) , 'block' + i)
+      // this.game.physics.arcade.enable(this.blocks);
+      // this.blocks.body.immovable = true;  
+      // this.blocks.checkWorldBounds = true;
+      // this.blocks.events.onOutOfBounds.add( this.killBlock, this );
+      
+    }
   },
 
   hitBlock: function (player) {

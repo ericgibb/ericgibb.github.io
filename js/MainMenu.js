@@ -16,7 +16,7 @@ BasicGame.MainMenu.prototype = {
     
   if (BasicGame.music == null) {
     BasicGame.music = this.add.audio('titleMusic',1,true);
-    BasicGame.music.play('',0,1,true);
+    // BasicGame.music.play('',0,1,true);
   } 
 
     this.add.sprite(0, 0, 'background');
