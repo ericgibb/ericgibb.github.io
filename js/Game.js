@@ -74,7 +74,8 @@ BasicGame.Game.prototype = {
     
     BasicGame.currentscore = 0;
     this.count = 0;
-    
+    this.grouponstage = 0
+     
     this.blocks = this.game.add.group();
     this.blocks.enableBody = true;
     this.blocks.createMultiple(10, 'block')
