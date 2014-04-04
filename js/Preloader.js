@@ -22,6 +22,8 @@ BasicGame.Preloader.prototype = {
     // this.load.setPreloadSprite(this.preloadBar);
 
     //  Here we load the rest of the assets our game needs.
+		this.load.audio('titleMusic', ['assets/loop.mp3']);
+    
     this.load.image('background', 'assets/sky.png');
     this.load.image('ground', 'assets/ground.png');
     this.load.image('block', 'assets/block.png');
@@ -49,12 +51,12 @@ BasicGame.Preloader.prototype = {
     //  If you don't have any music in your game then put the game.state.start line into the create function and delete
     //  the update function completely.
     
-    // if (this.cache.isSoundDecoded('titleMusic') && this.ready == false)
-    // {
-    //   this.ready = true;
-    //   this.state.start('MainMenu');
-    // }
-    this.state.start('MainMenu');
+    if (this.cache.isSoundDecoded('titleMusic') && this.ready == false)
+    {
+      this.ready = true;
+      this.state.start('MainMenu');
+    }
+    // this.state.start('MainMenu');
     
 
   }
