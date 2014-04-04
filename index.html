@@ -2,6 +2,9 @@
 <html lang="en"> 
 <head> 
 	<meta charset="UTF-8" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="initial-scale=1.0">
+  
     <title>Phaser - Making your first game, part 9</title>
 	<script type="text/javascript" src="js/phaser.min.js"></script>
     <style type="text/css">
@@ -14,12 +17,16 @@
 
 <script type="text/javascript">
 
-var game = new Phaser.Game(500, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+// get dimensions of the window considering retina displays
+var w = window.innerWidth,
+    h = window.innerHeight;
 
+// simply pass them in
+var game = new Phaser.Game(w, h, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 function preload() {
 
     game.load.image('sky', 'assets/sky.png');
-    game.load.image('ground', 'assets/platform.png');
+    game.load.image('ground', 'assets/ground.png');
     game.load.image('block', 'assets/block.png');
     game.load.image('duck', 'assets/duck.png');
     game.load.image('logo', 'assets/logo.png');
@@ -34,10 +41,12 @@ var blockSpeedIncrease = 20;
 var score = 0;
 var highScore = 0;
 var mouseIsDown = false;
+var sky;
 
 function create() {
 
-    game.add.sprite(0, 0, 'sky');
+    sky = game.add.sprite(0, 0, 'sky');
+    sky.width = w;
     game.add.sprite(0, 0, 'logo');
 
     scoreText = game.add.text(50, 100, 'Score: 0', { font: "20px Arial", fill: "#e1d400", align: "left" });
@@ -49,7 +58,8 @@ function create() {
     //  A simple background for our game
 
     // Here we create the ground.
-    ground = game.add.sprite(100, game.world.height - 64, 'ground');
+    ground = game.add.sprite(game.world.width/2-200, game.world.height - 64, 'ground');
+    ground.width = 300;
     game.physics.arcade.enable(ground);
     ground.body.immovable = true;
     // The player and its settings
