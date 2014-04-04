@@ -1,176 +1,76 @@
-<!doctype html> 
-<html lang="en"> 
-<head> 
-	<meta charset="UTF-8" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="viewport" content="initial-scale=1.0">
-  
-    <title>Phaser - Making your first game, part 9</title>
-	<script type="text/javascript" src="js/phaser.min.js"></script>
-    <style type="text/css">
-        body {
-            margin: 0;
-        }
-    </style>
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>JUMP, DUCK, JUMP!</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1, IE=9">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="robots" content="noindex,nofollow" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="apple-mobile-web-app-title" content="Phaser App">
+	<meta name="viewport" content="initial-scale=1 maximum-scale=1 user-scalable=0 minimal-ui" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+	<!-- non-retina iPhone pre iOS 7 -->
+	<link rel="apple-touch-icon" sizes="57x57" href="icons/app_icon_57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="icons/app_icon_60x60.png">
+	<!-- non-retina iPad pre iOS 7 -->
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/app_icon_72x72.png">
+	<!-- non-retina iPad iOS 7 -->
+	<link rel="apple-touch-icon" sizes="76x76" href="icons/app_icon_76x76.png">
+	<!-- retina iPhone pre iOS 7 -->
+	<link rel="apple-touch-icon" sizes="114x114" href="icons/app_icon_114x114.png">
+	<!-- retina iPhone iOS 7 -->
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/app_icon_120x120.png">
+	<!-- retina iPad pre iOS 7 -->
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/app_icon_144x144.png">
+	<!-- retina iPad iOS 7 -->
+	<link rel="apple-touch-icon" sizes="152x152" href="icons/app_icon_152x152.png">
+	<link rel="apple-touch-icon" sizes="256x256" href="icons/app_icon_256x256.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icons/app_icon_512x512.png">
+	<link rel="apple-touch-icon" sizes="1024x1024" href="icons/app_icon_1024x1024.png">
+	<script src="js/phaser.min.js"></script>
+	<script src="js/Boot.js"></script>
+	<script src="js/Preloader.js"></script>
+	<script src="js/MainMenu.js"></script>
+	<script src="js/Game.js"></script>
+  <style type="text/css" media="screen">
+  body {
+      margin: 0px 0px 1px 0px; /* the extra 1px allows the iOS inner/outer check to work */
+      background: #000;
+  }
+
+  </style>
 </head>
 <body>
 
+	<div id="game"></div>
+
 <script type="text/javascript">
 
-// get dimensions of the window considering retina displays
-var w = window.innerWidth,
-    h = window.innerHeight;
+(function () {
 
-// simply pass them in
-var game = new Phaser.Game(w, h, Phaser.AUTO, '', { preload: preload, create: create, update: update });
-function preload() {
+	//	Create your Phaser game and inject it into the game div.
+	//	We did it in a window.onload event, but you can do it anywhere (requireJS load, anonymous function, jQuery dom ready, - whatever floats your boat)
+	//	We're using a game size of 1024 x 768 here, but you can use whatever you feel makes sense for your game of course.
+	var game = new Phaser.Game(1024, 768, Phaser.AUTO, 'game');
 
-    game.load.image('sky', 'assets/sky.png');
-    game.load.image('ground', 'assets/ground.png');
-    game.load.image('block', 'assets/block.png');
-    game.load.image('duck', 'assets/duck.png');
-    game.load.image('logo', 'assets/logo.png');
-}
+	//	Add the States your game has.
+	//	You don't have to do this in the html, it could be done in your Boot state too, but for simplicity I'll keep it here.
+	game.state.add('Boot', BasicGame.Boot);
+	game.state.add('Preloader', BasicGame.Preloader);
+	game.state.add('MainMenu', BasicGame.MainMenu);
+	game.state.add('Game', BasicGame.Game);
 
-var ground;
-var blocks;
-var isHit = false;
-var count = 0;
-var blockSpeed = 400;
-var blockSpeedIncrease = 20;
-var score = 0;
-var highScore = 0;
-var mouseIsDown = false;
-var sky;
+	//	Now start the Boot state.
+	game.state.start('Boot');
 
-function create() {
-
-    sky = game.add.sprite(0, 0, 'sky');
-    sky.width = w;
-    game.add.sprite(0, 0, 'logo');
-
-    scoreText = game.add.text(50, 100, 'Score: 0', { font: "20px Arial", fill: "#e1d400", align: "left" });
-    highScoreText = game.add.text(50, 150, 'High Score: 0', { font: "20px Arial", fill: "#e1d400", align: "left" });
-  
-    //  We're going to be using physics, so enable the Arcade Physics system
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    //  A simple background for our game
-
-    // Here we create the ground.
-    ground = game.add.sprite(game.world.width/2-200, game.world.height - 64, 'ground');
-    ground.width = 300;
-    game.physics.arcade.enable(ground);
-    ground.body.immovable = true;
-    // The player and its settings
-    player = game.add.sprite(game.world.width/2, game.world.height - 150, 'duck');
-
-    //  We need to enable physics on the player
-    game.physics.arcade.enable(player);
-
-    //  Player physics properties. Give the little guy a slight bounce.
-    player.body.bounce.y = 0.25;
-    player.body.gravity.y = 1500;
-    // player.body.collideWorldBounds = false;
-    player.checkWorldBounds = true;
-    player.events.onOutOfBounds.add( killPlayer, this );
-
-    
-    //  Our controls.
-    cursors = game.input.keyboard.createCursorKeys();
-
-    addBlock();
-  }
-
-function update() {
-
-    //  Collide the player and the stars with the platforms
-    game.physics.arcade.collide(player, ground);
-    if (!isHit) {
-      game.physics.arcade.collide(player, blocks, hitBlock);
-    }
-    if (game.input.activePointer.isDown) {
-      console.log()
-    }
-    
-    score += 1;
-    scoreText.text = 'Score: ' + score;
-    
-    blocks.body.velocity.x = -(blockSpeed + (blockSpeedIncrease*count));
-    
-    //  Reset the players velocity (movement)
-    player.body.velocity.x = 0;
-    
-    //  Allow the player to jump if they are touching the ground. 
-    if ( ( cursors.up.isDown || (game.input.activePointer.isDown && game.input.activePointer.positionDown.y < game.world.height/2) ) && player.body.touching.down)
-    {
-        // player.body.velocity.y = -500;
-        // playerJump()
-        player.body.velocity.y = -500;
-    }
-    
-    //  Allow the player to duck
-    if ( ( cursors.down.isDown || (game.input.activePointer.isDown && game.input.activePointer.positionDown.y > game.world.height/2) ) && player.body.touching.down)
-    {
-      // playerDuck();
-      if (player.scale.y == 0.5) {
-        // already crouched 
-      }else{
-        player.y += player.getBounds().height/2;
-        player.scale.y = 0.5;
-      }
-    }else{
-      if (player.scale.y == 1) {
-        // already standing
-      }else{
-        player.y -= player.getBounds().height;
-        player.scale.y = 1;
-      }      
-    } 
-}
-
-function killPlayer(obj){
-  // console.log('resetting player')
-  player.reset(game.world.width/2, game.world.height - 150);
-  
-  if (score > highScore) {
-    highScore = score;
-    highScoreText.text = "High Score: " + score;
-  }
-    score = 0;
-    count = 0;
- 
-}
-
-function addBlock(){
-  // blocks
-  blocks = game.add.sprite(200, 300 , 'block')
-  game.physics.arcade.enable(blocks);
-  blocks.body.immovable = true;  
-  blocks.checkWorldBounds = true;
-  blocks.events.onOutOfBounds.add( killBlock, this );
-}
-
-function killBlock(block){
-//  console.log ('resetting block');
-  block.reset(game.world.width - block.getBounds().width , game.world.height - (Math.random() > 0.5 ? 150 : 114));
-  count += 1;
-}
-
-function hitBlock(){
-  // console.log('hit a block')
-  isHit = true;
-  var v = {x: player.body.velocity.x, y: player.body.velocity.y};
-  player.reset(player.x - player.getBounds().width, player.y)
-  player.alpha = 0.2;
-  player.body.velocity.set(v.x, v.y);
-  setTimeout(function () {
-    isHit = false;  
-    player.alpha = 1;
-    
-  }, 500);
-}
-
+})();
 </script>
 
 </body>
