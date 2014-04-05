@@ -27,7 +27,7 @@ BasicGame.MainMenu.prototype = {
     this.playButton = this.add.button(400, 600, 'startButton', this.startGame, this, 'buttonOver', 'buttonOut', 'buttonOver');
     this.playButton.x = (this.game.world.width/2) - (this.playButton.getBounds().width/2)
     var instructiontext ="Tap the top half of the screen to jump. \n Tap the bottom half to duck. \n Or use your up/down arrow keys."
-    var instructions = this.game.add.text(20, 200, instructiontext, { font: "20px Arial", fill: "#fff", align: "center" });
+    var instructions = this.game.add.text(20, 200, instructiontext, { font: "32px Minecraftia", fill: "#fff", align: "center" });
     instructions.x = (this.game.world.width/2) - (instructions.getBounds().width/2) 
     
     // If the user already played
@@ -36,7 +36,7 @@ BasicGame.MainMenu.prototype = {
         this.gameOver = this.add.sprite(50, 150, 'gameOver');
         this.gameOver.reset( (this.game.world.width/2) - (this.gameOver.getBounds().width/2), (this.game.world.height/2) - (this.gameOver.getBounds().height/2))
         
-        var yourScore = this.game.add.text(20, (this.game.world.height/2) + 50, BasicGame.previousscore, { font: "50px Arial", fill: "#fff", align: "center" });
+        var yourScore = this.game.add.text(20, (this.game.world.height/2) + 50, BasicGame.previousscore, { font: "50px Minecraftia", fill: "#fff", align: "center" });
         yourScore.x = (this.game.world.width/2) - (yourScore.getBounds().width/2) 
     }
   },

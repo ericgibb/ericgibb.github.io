@@ -46,8 +46,8 @@ BasicGame.Game.prototype = {
     var title = this.add.sprite(this.game.world.width/2, 50, 'title');
     title.x = (this.game.world.width/2) - (title.getBounds().width/2);
     // 
-    scoreText = this.game.add.text(600, 120, 'Score: 0', { font: "30px Arial", fill: "#fff", align: "left" });
-    highScoreText = this.game.add.text(300, 125, 'Best: ' + BasicGame.highscore , { font: "20px Arial", fill: "#fff", align: "left" });
+    scoreText = this.game.add.text(600, 120, 'Score: 0', { font: "30px Minecraftia", fill: "#fff", align: "left" });
+    highScoreText = this.game.add.text(300, 125, 'Best: ' + BasicGame.highscore , { font: "20px Minecraftia", fill: "#fff", align: "left" });
     
     // //  We're going to be using physics, so enable the Arcade Physics system
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -95,10 +95,11 @@ BasicGame.Game.prototype = {
     if (this.grouponstage == 0) {
       this.addBlocks();
     }
+    
+    this.blocks.forEachAlive(this.checkBlockPosition, this);
+    
     // this.timer = this.game.time.events.loop(500, this.addBlocks, this); 
     
-    BasicGame.currentscore += 1;
-    scoreText.text = 'Score: ' + BasicGame.currentscore;
     
     // this.blocks.body.velocity.x = - 1500;
     // this.blocks.body.velocity.x = -(this.blockspeed + (this.blockspeedmod * Math.pow(this.count*this.countmod, this.countexp)))
@@ -160,12 +161,13 @@ BasicGame.Game.prototype = {
       block.reset(x, y);
       // Add velocity to the pipe to make it move left
       block.body.velocity.x = - (this.blockspeed + (this.blockspeedmod * Math.pow(this.count*this.countmod, this.countexp)));
+      block.scored = false;
       block.body.immovable   = true; 
       block.checkWorldBounds = true;
       block.outOfBoundsKill  = true;
       block.events.onOutOfBounds.add( this.killBlock, this );
   },
-
+  
   killBlock: function (block) {
     block.kill()
     // block.reset(this.game.world.width - block.getBounds().width , this.game.world.height - (Math.random() > 0.5 ? 150 : 114));
@@ -201,7 +203,18 @@ BasicGame.Game.prototype = {
     }, 500);
 
   },
+  checkBlockPosition: function(block){
 
+    if ( (block.scored == false) && (Math.round(block.x) < this.player.x) ) {
+      if (this.isHit == false) {
+        block.scored = true;
+        BasicGame.currentscore += 1;
+        scoreText.text = 'Score: ' + BasicGame.currentscore;
+      }else{
+        block.scored = true;
+      } 
+    }
+  },
   quitGame: function (pointer) {
 
     //  Here you should destroy anything you no longer need.
