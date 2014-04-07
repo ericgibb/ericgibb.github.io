@@ -6,6 +6,7 @@ BasicGame = {
     highscore: 0,
     /* If the music in your game needs to play through-out a few State swaps, then you could reference it here */
     music: null,
+    musicMuted: false,
 
     /* Your game can check BasicGame.orientated in internal loops to know if it should pause or not */
     orientated: false
@@ -21,7 +22,7 @@ BasicGame.Boot.prototype = {
         //  Here we load the assets required for our preloader (in this case a background and a loading bar)
         this.load.image('preloaderBackground', 'assets/sky.png');
         // this.load.image('preloaderBar', 'images/preloadr_bar.png');
-
+        
     },
 
     create: function () {
@@ -56,6 +57,10 @@ BasicGame.Boot.prototype = {
         }
 
         this.state.start('Preloader');
+        
+        if (localStorage["jumpduckjump-muted"]) {
+          BasicGame.musicMuted = true;
+        }
 
     },
 

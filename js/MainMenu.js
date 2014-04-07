@@ -14,7 +14,7 @@ BasicGame.MainMenu.prototype = {
     //  Here all we're doing is playing some music and adding a picture and button
     //  Naturally I expect you to do something significantly better :)
     
-  if (BasicGame.music == null) {
+  if (BasicGame.music == null && !BasicGame.musicMuted) {
     BasicGame.music = this.add.audio('titleMusic',1,true);
     BasicGame.music.play('',0,1,true);
   } 
